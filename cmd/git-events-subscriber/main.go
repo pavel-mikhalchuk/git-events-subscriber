@@ -10,22 +10,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func webhookPayload() string {
+	return "{\"repository\": {\"links\": {\"html\": {\"href\": \"http://bb.alutech-mc.com:8080/scm/as/infra.git\"}}},\"push\": {\"changes\": [{\"new\": {\"name\": \"master\"}}]}}"
+}
+
 func handlePush(w http.ResponseWriter, req *http.Request) {
-	log.Info("ArgoCD notified")
+	res, err := http.Post("https://argocd-server.argocd/api/webhook", "application/json", bytes.NewBufferString(webhookPayload()))
 
-	//
-
-	// res, err := http.Post("https://argocd-server.argocd/api/webhook", "application/json", bytes.NewBufferString(""))
-
-	// https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html
-
-	// if err != nil {
-	// 	log.Printf("Failed to notify a subscriber '%s'", webhook)
-	// } else if res.Status != "200" {
-	// 	log.Printf("Subscriber '%s' responded with non 200. Response code: %s", webhook, res.Status)
-	// } else {
-	// 	log.Printf("Subscriber '%s' notified successfully.", webhook)
-	// }
+	if err != nil {
+		log.Warnf("Failed to notify local ArgoCD. Error details: '%s'", err)
+	} else if res.Status != "200" {
+		log.Warnf("Local ArgoCD responded with non 200. Response code: %s", res.Status)
+	} else {
+		log.Infof("Local ArgoCD is notified successfully.")
+	}
 }
 
 func healthCheck(w http.ResponseWriter, req *http.Request) {
