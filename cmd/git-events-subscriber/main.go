@@ -54,5 +54,5 @@ func main() {
 	r.HandleFunc("/push", handlePush).Methods("POST")
 	r.HandleFunc("/health", healthCheck).Methods("GET")
 	http.Handle("/", r)
-	http.ListenAndServe(":8081", nil)
+	http.ListenAndServe(":8080", nil)
 }
