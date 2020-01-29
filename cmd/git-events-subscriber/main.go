@@ -2,19 +2,22 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 )
 
 func webhookPayload() string {
-	return "{\"repository\": {\"links\": {\"html\": {\"href\": \"http://bb.alutech-mc.com:8080/scm/as/infra.git\"}}},\"push\": {\"changes\": [{\"new\": {\"name\": \"master\"}}]}}"
+	return "{\"repository\": {\"links\": {\"html\": {\"href\": \"" + os.Getenv("GIT_REPO_URL") + "\"}}},\"push\": {\"changes\": [{\"new\": {\"name\": \"master\"}}]}}"
 }
 
 func handlePush(w http.ResponseWriter, req *http.Request) {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	res, err := http.Post("https://argocd-server.argocd/api/webhook", "application/json", bytes.NewBufferString(webhookPayload()))
 
 	if err != nil {
@@ -47,6 +50,7 @@ func healthCheck(w http.ResponseWriter, req *http.Request) {
 func main() {
 	log.Infof("PUBLISHER_URL: %s", os.Getenv("PUBLISHER_URL"))
 	log.Infof("MY_INGRESS_URL: %s", os.Getenv("MY_INGRESS_URL"))
+	log.Infof("GIT_REPO_URL: %s", os.Getenv("GIT_REPO_URL"))
 
 	r := mux.NewRouter()
 	r.HandleFunc("/push", handlePush).Methods("POST")
