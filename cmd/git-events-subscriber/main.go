@@ -18,7 +18,19 @@ func webhookPayload() string {
 
 func handlePush(w http.ResponseWriter, req *http.Request) {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	res, err := http.Post("https://argocd-server.argocd/api/webhook", "application/json", bytes.NewBufferString(webhookPayload()))
+
+	req, err := http.NewRequest("POST", "https://argocd-server.argocd/api/webhook", bytes.NewBufferString(webhookPayload()))
+
+	if err != nil {
+		log.Warnf("Failed to form a request for local ArgoCD. Error details: '%s'", err)
+		return
+	}
+
+	req.Header.Add("X-Event-Key", "repo:push")
+	req.Header.Add("X-Hook-UUID", "666")
+	req.Header.Add("Content-Type", "application/json")
+
+	res, err := http.DefaultClient.Do(req)
 
 	if err != nil {
 		log.Warnf("Failed to notify local ArgoCD. Error details: '%s'", err)
