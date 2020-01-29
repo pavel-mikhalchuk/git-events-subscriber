@@ -22,8 +22,8 @@ func handlePush(w http.ResponseWriter, req *http.Request) {
 
 	if err != nil {
 		log.Warnf("Failed to notify local ArgoCD. Error details: '%s'", err)
-	} else if res.Status != "200" {
-		log.Warnf("Local ArgoCD responded with non 200. Response code: %s", res.Status)
+	} else if res.StatusCode != 200 {
+		log.Warnf("Local ArgoCD responded with non 200. Response code: %s", res.StatusCode)
 	} else {
 		log.Infof("Local ArgoCD is notified successfully.")
 	}
