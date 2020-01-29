@@ -13,6 +13,8 @@ import (
 func handlePush(w http.ResponseWriter, req *http.Request) {
 	log.Info("ArgoCD notified")
 
+	//
+
 	// res, err := http.Post("https://argocd-server.argocd/api/webhook", "application/json", bytes.NewBufferString(""))
 
 	// https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html
