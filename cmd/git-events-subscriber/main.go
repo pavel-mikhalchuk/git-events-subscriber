@@ -42,6 +42,8 @@ func handlePush(w http.ResponseWriter, req *http.Request) {
 }
 
 func healthCheck(w http.ResponseWriter, req *http.Request) {
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
 	res, err := http.Post(
 		os.Getenv("PUBLISHER_URL")+"/subscribers",
 		"application/json",
